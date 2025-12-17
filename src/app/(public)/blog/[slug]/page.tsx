@@ -5,6 +5,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { MainNavbar, MainFooter } from "@/components/layout";
 import { Card } from "@/components/ui";
+import { JsonLd } from "@/components/seo";
+import { getArticleSchema, getFaqSchema, getBreadcrumbSchema } from "@/lib/seo";
 
 interface BlogPageProps {
   params: Promise<{ slug: string }>;
@@ -190,29 +192,26 @@ export default async function BlogPage({ params }: BlogPageProps) {
             </div>
           )}
 
-          {/* Schema.org markup for SEO */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "BlogPosting",
-                headline: blog.title,
-                description: blog.metaDescription,
-                image: mainImage?.imageUrl,
-                datePublished: blog.createdAt.toISOString(),
-                dateModified: blog.updatedAt.toISOString(),
-                author: {
-                  "@type": "Organization",
-                  name: "Caelum",
-                },
-                publisher: {
-                  "@type": "Organization",
-                  name: "Caelum",
-                },
-              }),
-            }}
+          {/* Structured Data for SEO */}
+          <JsonLd
+            data={getArticleSchema({
+              title: blog.title,
+              description:
+                blog.metaDescription || blog.content?.slice(0, 160) || "",
+              slug: slug,
+              publishedAt: blog.createdAt,
+              updatedAt: blog.updatedAt,
+              image: mainImage?.imageUrl,
+            })}
           />
+          <JsonLd
+            data={getBreadcrumbSchema([
+              { name: "Home", url: "/" },
+              { name: "Blog", url: "/blogs" },
+              { name: blog.title, url: `/blog/${slug}` },
+            ])}
+          />
+          {blog.faqs.length > 0 && <JsonLd data={getFaqSchema(blog.faqs)} />}
         </article>
 
         {/* Back to Blog */}

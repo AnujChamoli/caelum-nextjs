@@ -4,11 +4,26 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
 import { MainNavbar, MainFooter } from "@/components/layout";
+import { JsonLd } from "@/components/seo";
+import { getBreadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Blog | Caelum",
   description:
-    "Latest articles and insights about education and school investment",
+    "Latest articles and insights about education investment, school management, and tips for educators. Stay updated with Caelum's expert content.",
+  keywords: [
+    "education blog",
+    "school investment articles",
+    "teacher resources",
+    "education insights",
+    "school management tips",
+  ],
+  openGraph: {
+    title: "Blog | Caelum",
+    description:
+      "Latest articles and insights about education and school investment",
+    type: "website",
+  },
 };
 
 export const revalidate = 3600; // Revalidate every hour
@@ -119,6 +134,12 @@ export default async function BlogsPage() {
           )}
         </section>
       </main>
+      <JsonLd
+        data={getBreadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blogs" },
+        ])}
+      />
       <MainFooter />
     </>
   );
