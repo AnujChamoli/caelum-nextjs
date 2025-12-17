@@ -19,6 +19,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://caelum.com"
+  ),
   title: {
     default: "Caelum - Transform Your School Investment Journey",
     template: "%s | Caelum",
