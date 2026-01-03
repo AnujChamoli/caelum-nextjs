@@ -10,7 +10,6 @@ import {
   MdQuestionAnswer,
   MdLogout,
   MdDashboard,
-  MdTrendingUp,
 } from "react-icons/md";
 
 interface DashboardStats {
@@ -31,14 +30,15 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      // We would need to create an endpoint for this
-      // For now just set placeholder data
-      setStats({
-        blogs: 0,
-        seoPages: 0,
-        users: 0,
-        faqs: 0,
-      });
+      const response = await fetch("/api/admin/stats");
+      if (!response.ok) {
+        console.error("Failed to fetch stats:", response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      const statsData = data.result || data.data;
+      setStats(statsData);
     } catch (error) {
       console.error("Failed to fetch stats:", error);
     } finally {
@@ -91,7 +91,9 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <MdDashboard className="text-color9 text-2xl" />
-              <h1 className="text-xl font-bold text-color3">Admin Dashboard</h1>
+              <h1 className="text-xl font-bold text-color3">
+                Admin Dashboard
+              </h1>
             </div>
             <Button
               variant="outline"
@@ -106,8 +108,9 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
+      {/* Main */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
+        {/* Welcome */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-color3">Welcome, Admin</h2>
           <p className="text-gray-600 mt-1">

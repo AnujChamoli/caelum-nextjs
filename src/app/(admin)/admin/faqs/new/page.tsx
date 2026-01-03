@@ -7,7 +7,7 @@ import { Card, Button, Input, Select } from "@/components/ui";
 import { MdArrowBack, MdSave } from "react-icons/md";
 
 interface Blog {
-  id: number;
+  id: string;
   title: string;
 }
 
@@ -22,6 +22,7 @@ export default function NewFaqPage() {
     blogId: "",
   });
 
+  //  Fetch blogs to optionally link FAQ to a blog
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -29,15 +30,21 @@ export default function NewFaqPage() {
   const fetchBlogs = async () => {
     try {
       const response = await fetch("/api/blogs");
-      const data = await response.json();
-      if (data.success) {
-        setBlogs(data.data);
+
+      if (!response.ok) {
+        console.error("Failed to fetch blogs:", response.statusText);
+        return;
       }
+
+      const data = await response.json();
+      const blogsData = data.result || data.data || data.items || [];
+      setBlogs(blogsData);
     } catch (error) {
-      console.error("Failed to fetch blogs:", error);
+      console.error("Error fetching blogs:", error);
     }
   };
 
+  // 🔹 Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -48,8 +55,10 @@ export default function NewFaqPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          blogId: formData.blogId ? parseInt(formData.blogId) : null,
+          question: formData.question,
+          answer: formData.answer,
+          // If blogId is empty string, send null
+          blogId: formData.blogId || null,
         }),
       });
 
@@ -59,18 +68,22 @@ export default function NewFaqPage() {
         throw new Error(data.message || "Failed to create FAQ");
       }
 
+      // ✅ Redirect to FAQ list after success
       router.push("/admin/faqs");
+      router.refresh();
     } catch (err) {
+      console.error("Error creating FAQ:", err);
       setError(err instanceof Error ? err.message : "Failed to create FAQ");
     } finally {
       setLoading(false);
     }
   };
 
+  // Dropdown options
   const blogOptions = [
     { value: "", label: "No blog (standalone FAQ)" },
     ...blogs.map((blog) => ({
-      value: blog.id.toString(),
+      value: blog.id,
       label: blog.title,
     })),
   ];
@@ -102,6 +115,7 @@ export default function NewFaqPage() {
         </div>
       </header>
 
+      {/* Form */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
@@ -122,6 +136,7 @@ export default function NewFaqPage() {
                 placeholder="Enter the question"
                 required
               />
+
               <div>
                 <label className="block text-sm font-medium text-color3 mb-2">
                   Answer
@@ -137,6 +152,7 @@ export default function NewFaqPage() {
                   required
                 />
               </div>
+
               <Select
                 label="Link to Blog (optional)"
                 options={blogOptions}
