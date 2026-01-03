@@ -25,18 +25,21 @@ export default function AdminSeoPage() {
   }, []);
 
   const fetchPages = async () => {
-    try {
-      const response = await fetch("/api/seo");
-      const data = await response.json();
-      if (data.success) {
-        setPages(data.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch SEO pages:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const response = await fetch("/api/seo");
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    // FIX: use result or data key depending on API response
+    const seoData = data.result || data.data || [];
+    setPages(seoData);
+  } catch (error) {
+    console.error("Failed to fetch SEO pages:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDelete = async (slug: string) => {
     if (!confirm("Are you sure you want to delete this SEO page?")) return;
@@ -54,11 +57,16 @@ export default function AdminSeoPage() {
     }
   };
 
-  const filteredPages = pages.filter(
-    (page) =>
-      page.metaTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      page.slug.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPages = pages.filter((page) => {
+  const title = page.metaTitle || ""; // fallback if undefined
+  const slug = page.slug || "";
+
+  return (
+    title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    slug.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
 
   return (
     <div className="min-h-screen bg-color6">

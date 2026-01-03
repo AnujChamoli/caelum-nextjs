@@ -41,10 +41,10 @@ async function getBlogs() {
   });
   return blogs.map((blog) => ({
     ...blog,
-    images: blog.images.map((image) => ({
+    images: blog.images?.map((image) => ({
       imageUrl: image.imageUrl,
       altText: image.altText || "",
-    })),
+    })) || [],
     readTime: blog.readTime || undefined,
     metaDescription: blog.metaDescription || undefined,
   }));
@@ -100,15 +100,12 @@ export default async function BlogsPage() {
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                        <time dateTime={blog.createdAt.toISOString()}>
-                          {new Date(blog.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "long",
-                              day: "numeric",
-                              year: "numeric",
-                            }
-                          )}
+                        <time dateTime={new Date(blog.createdAt).toISOString()}>
+                          {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
                         </time>
                         {blog.readTime && (
                           <>

@@ -99,15 +99,26 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center mt-6 text-gray-600">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-color1 font-semibold hover:underline"
-            >
-              Sign Up
-            </Link>
-          </p>
+          <div className="text-center mt-6 text-gray-600 space-y-2">
+            <p>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="text-color1 font-semibold hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
+            <p>
+              Are you an admin?{" "}
+              <Link
+                href="/admin/login"
+                className="text-color1 font-semibold hover:underline"
+              >
+                Go to Admin Login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
 

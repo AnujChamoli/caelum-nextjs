@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, Button, Input } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { MdAdd, MdEdit, MdDelete, MdArrowBack, MdSearch } from "react-icons/md";
+import { toast } from "react-toastify";
 
 interface Blog {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   isPublished: boolean;
@@ -25,36 +26,52 @@ export default function AdminBlogsPage() {
     fetchBlogs();
   }, []);
 
+  // 🔹 Fetch all blogs
   const fetchBlogs = async () => {
     try {
       const response = await fetch("/api/blogs");
-      const data = await response.json();
-      if (data.success) {
-        setBlogs(data.data);
+      if (!response.ok) {
+        console.error("Failed to fetch blogs:", response.statusText);
+        toast.error("Failed to fetch blogs.");
+        return;
       }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      // Adapt to your backend format
+      const blogsData =
+        data.result || data.data || data.items || data.results || data.blogs || [];
+      setBlogs(blogsData);
     } catch (error) {
-      console.error("Failed to fetch blogs:", error);
+      console.error("Error fetching blogs:", error);
+      toast.error("Error loading blogs.");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔹 Delete blog by slug
   const handleDelete = async (slug: string) => {
     if (!confirm("Are you sure you want to delete this blog?")) return;
 
     try {
-      const response = await fetch(`/api/blogs/${slug}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setBlogs(blogs.filter((blog) => blog.slug !== slug));
+      const response = await fetch(`/api/blogs/${slug}`, { method: "DELETE" });
+      if (!response.ok) {
+        toast.error("Failed to delete blog.");
+        return;
       }
+
+      // Optimistically remove from UI
+      setBlogs((prev) => prev.filter((blog) => blog.slug !== slug));
+      toast.success("Blog deleted successfully!");
     } catch (error) {
       console.error("Failed to delete blog:", error);
+      toast.error("Error deleting blog.");
     }
   };
 
+  // 🔹 Filter blogs by search
   const filteredBlogs = blogs.filter((blog) =>
     blog.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -83,6 +100,7 @@ export default function AdminBlogsPage() {
         </div>
       </header>
 
+      {/* Main */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search */}
         <div className="mb-6">
@@ -163,11 +181,16 @@ export default function AdminBlogsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/admin/blogs/${blog.slug}/edit`}>
-                            <Button variant="ghost" size="sm">
-                              <MdEdit size={18} />
-                            </Button>
-                          </Link>
+                          {/* Edit */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => router.push(`/admin/blogs/${blog.slug}/edit`)}
+                          >
+                            <MdEdit size={18} />
+                          </Button>
+
+                          {/* Delete */}
                           <Button
                             variant="ghost"
                             size="sm"
