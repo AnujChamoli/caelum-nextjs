@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, Button, Input, Select } from "@/components/ui";
-import { MdArrowBack, MdSave, MdPreview } from "react-icons/md";
+import { Card, Button, Input } from "@/components/ui";
+import { UploadButton } from "@/utils/uploadthing";
+import { MdArrowBack, MdSave } from "react-icons/md";
 
 export default function NewBlogPage() {
   const router = useRouter();
@@ -19,8 +20,10 @@ export default function NewBlogPage() {
     metaKeywords: "",
     readTime: "",
     isPublished: false,
+    image: "", // ✅ Added image field
   });
 
+  // 🔹 Generate slug automatically from title
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -36,6 +39,7 @@ export default function NewBlogPage() {
     });
   };
 
+  // 🔹 Submit new blog
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -67,7 +71,7 @@ export default function NewBlogPage() {
 
   return (
     <div className="min-h-screen bg-color6">
-      {/* Header */}
+      {/* 🔹 Header */}
       <header className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -79,21 +83,20 @@ export default function NewBlogPage() {
               </Link>
               <h1 className="text-xl font-bold text-color3">New Blog Post</h1>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                type="submit"
-                form="blog-form"
-                isLoading={loading}
-                className="flex items-center gap-2"
-              >
-                <MdSave size={20} />
-                Save
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              form="blog-form"
+              isLoading={loading}
+              className="flex items-center gap-2"
+            >
+              <MdSave size={20} />
+              Save
+            </Button>
           </div>
         </div>
       </header>
 
+      {/* 🔹 Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
@@ -102,7 +105,7 @@ export default function NewBlogPage() {
         )}
 
         <form id="blog-form" onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
+          {/* 🔹 Basic Information */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-color3 mb-4">
               Basic Information
@@ -124,6 +127,8 @@ export default function NewBlogPage() {
                 placeholder="enter-blog-slug"
                 required
               />
+
+              {/* 🔹 Content */}
               <div>
                 <label className="block text-sm font-medium text-color3 mb-2">
                   Content
@@ -134,11 +139,54 @@ export default function NewBlogPage() {
                     setFormData({ ...formData, content: e.target.value })
                   }
                   placeholder="Write your blog content here... (HTML supported)"
-                  rows={15}
+                  rows={10}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"
                   required
                 />
               </div>
+
+              {/* 🔹 Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-color3 mb-2">
+                  Blog Cover Image
+                </label>
+
+                {formData.image ? (
+                  <div className="relative w-full h-48 mb-4">
+                    <img
+                      src={formData.image}
+                      alt="Blog Cover"
+                      className="w-full h-full object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="absolute top-2 right-2 bg-white/80"
+                      onClick={() => setFormData({ ...formData, image: "" })}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={(res) => {
+                      if (res && res[0]?.ufsUrl) {
+                        setFormData({
+                          ...formData,
+                          image: res[0].ufsUrl,
+                        });
+                      }
+                    }}
+                    onUploadError={(error) => {
+                      console.error("Upload failed:", error);
+                      alert("Image upload failed. Please try again.");
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* 🔹 Read Time + Publish */}
               <Input
                 label="Read Time (minutes)"
                 type="number"
@@ -165,7 +213,7 @@ export default function NewBlogPage() {
             </div>
           </Card>
 
-          {/* SEO */}
+          {/* 🔹 SEO Section */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-color3 mb-4">SEO Settings</h2>
             <div className="space-y-4">
@@ -189,7 +237,7 @@ export default function NewBlogPage() {
                       metaDescription: e.target.value,
                     })
                   }
-                  placeholder="Brief description for search engines (150-160 characters)"
+                  placeholder="Brief description for search engines (150–160 characters)"
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"
                 />

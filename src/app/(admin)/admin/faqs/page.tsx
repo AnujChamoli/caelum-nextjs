@@ -10,6 +10,9 @@ interface FAQ {
   question: string;
   answer: string;
   blogId: number | null;
+  blog?: {
+    title: string;
+  };
   createdAt: string;
 }
 
@@ -26,8 +29,10 @@ export default function AdminFaqsPage() {
     try {
       const response = await fetch("/api/faqs");
       const data = await response.json();
-      if (data.success) {
-        setFaqs(data.data);
+      if (response.ok && (data.success || data.result || data.data)) {
+        setFaqs(data.result || data.data || []);
+      } else {
+        console.error("Unexpected FAQ API response:", data);
       }
     } catch (error) {
       console.error("Failed to fetch FAQs:", error);
@@ -45,10 +50,12 @@ export default function AdminFaqsPage() {
       });
 
       if (response.ok) {
-        setFaqs(faqs.filter((faq) => faq.id !== id));
+        setFaqs((prev) => prev.filter((faq) => faq.id !== id));
+      } else {
+        console.error("Failed to delete FAQ");
       }
     } catch (error) {
-      console.error("Failed to delete FAQ:", error);
+      console.error("Error deleting FAQ:", error);
     }
   };
 
@@ -126,7 +133,8 @@ export default function AdminFaqsPage() {
                       </span>
                       {faq.blogId && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                          Linked to Blog #{faq.blogId}
+                          Linked to Blog:{" "}
+                          {faq.blog?.title || `#${faq.blogId}`}
                         </span>
                       )}
                     </div>

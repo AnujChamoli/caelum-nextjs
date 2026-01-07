@@ -87,6 +87,13 @@ export function MainNavbar() {
           >
             SIGN UP
           </Link>
+          <Link
+            href="/blogs"
+            className="block py-2"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            BLOGS
+          </Link>
         </nav>
       )}
     </header>

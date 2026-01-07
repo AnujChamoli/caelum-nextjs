@@ -8,98 +8,113 @@ import {
   notFoundResponse,
   unauthorizedResponse,
   serverErrorResponse,
+  badRequestResponse, // ✅ now available
 } from "@/lib/api-response";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/faqs/[id] - Get a single FAQ (public)
+// ✅ GET /api/faqs/[id] - Get a single FAQ
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
     const faq = await prisma.blogFaq.findUnique({
       where: { id },
+      include: {
+        blog: {
+          select: {
+            id: true,
+            title: true,
+            subtitle: true,
+            image: true,
+          },
+        },
+      },
     });
 
-    if (!faq) {
-      return notFoundResponse("FAQ not found");
-    }
+    if (!faq) return notFoundResponse("FAQ not found");
 
     return successResponse(faq, "FAQ retrieved successfully");
   } catch (error) {
+    console.error("Error fetching FAQ:", error);
     return serverErrorResponse("Failed to fetch FAQ", error);
   }
 }
 
-// PUT /api/faqs/[id] - Update a FAQ (admin only)
+// ✅ PUT /api/faqs/[id] - Update FAQ
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Verify admin authentication
     const admin = await verifyRequestAdminAuth(request);
-    if (!admin) {
-      return unauthorizedResponse("Admin authentication required");
-    }
+    if (!admin) return unauthorizedResponse("Admin authentication required");
 
     const body = await request.json();
-
-    // Validate input
     const validation = validateData(updateFaqSchema, body);
+
     if (!validation.success) {
       return errorResponse(validation.error, 422);
     }
 
-    // Check if FAQ exists
-    const existingFaq = await prisma.blogFaq.findUnique({
-      where: { id },
-    });
+    const { question, answer, blogId } = validation.data;
 
-    if (!existingFaq) {
-      return notFoundResponse("FAQ not found");
+    // Check if FAQ exists
+    const existingFaq = await prisma.blogFaq.findUnique({ where: { id } });
+    if (!existingFaq) return notFoundResponse("FAQ not found");
+
+    // Validate blog existence if provided
+    if (blogId) {
+      const blogExists = await prisma.blog.findUnique({ where: { id: blogId } });
+      if (!blogExists) {
+        return badRequestResponse("Linked blog not found");
+      }
     }
 
-    // Update FAQ
-    const faq = await prisma.blogFaq.update({
+    const updatedFaq = await prisma.blogFaq.update({
       where: { id },
-      data: validation.data,
+      data: {
+        question,
+        answer,
+        blogId: blogId ?? existingFaq.blogId,
+        updatedAt: new Date(),
+      },
+      include: {
+        blog: {
+          select: {
+            id: true,
+            title: true,
+            subtitle: true,
+            image: true,
+          },
+        },
+      },
     });
 
-    return successResponse(faq, "FAQ updated successfully");
+    return successResponse(updatedFaq, "FAQ updated successfully");
   } catch (error) {
+    console.error("Error updating FAQ:", error);
     return serverErrorResponse("Failed to update FAQ", error);
   }
 }
 
-// DELETE /api/faqs/[id] - Delete a FAQ (admin only)
+// ✅ DELETE /api/faqs/[id] - Delete FAQ
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Verify admin authentication
     const admin = await verifyRequestAdminAuth(request);
-    if (!admin) {
-      return unauthorizedResponse("Admin authentication required");
-    }
+    if (!admin) return unauthorizedResponse("Admin authentication required");
 
-    // Check if FAQ exists
-    const existingFaq = await prisma.blogFaq.findUnique({
-      where: { id },
-    });
+    const existingFaq = await prisma.blogFaq.findUnique({ where: { id } });
+    if (!existingFaq) return notFoundResponse("FAQ not found");
 
-    if (!existingFaq) {
-      return notFoundResponse("FAQ not found");
-    }
-
-    // Delete FAQ
-    await prisma.blogFaq.delete({
-      where: { id },
-    });
+    await prisma.blogFaq.delete({ where: { id } });
 
     return successResponse(null, "FAQ deleted successfully");
   } catch (error) {
+    console.error("Error deleting FAQ:", error);
     return serverErrorResponse("Failed to delete FAQ", error);
   }
 }

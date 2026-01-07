@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, Button, Input } from "@/components/ui";
 import { UploadButton } from "@/utils/uploadthing"; 
 import { MdArrowBack, MdSave } from "react-icons/md";
+import { toast } from "react-toastify";
 
-export default function NewSeoPage() {
+export default function EditSeoPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { slug } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
@@ -19,36 +22,106 @@ export default function NewSeoPage() {
     metaKeywords: "",
     ogTitle: "",
     ogDescription: "",
-    ogImage: "", 
+    ogImage: "",
     canonicalUrl: "",
     schemaMarkup: "",
     content: "",
   });
 
-  // Handle Form Submission
+  // Fetch existing SEO page
+  useEffect(() => {
+    if (!slug) return;
+    fetchSeoPage();
+  }, [slug]);
+
+  const fetchSeoPage = async () => {
+    try {
+      const response = await fetch(`/api/seo/${slug}`);
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Failed to fetch SEO data");
+
+      const seoData = data.result || data.data;
+      if (!seoData) throw new Error("SEO page not found");
+
+      setFormData({
+        slug: seoData.slug || "",
+        metaTitle: seoData.metaTitle || "",
+        metaDescription: seoData.metaDescription || "",
+        metaKeywords: seoData.metaKeywords || "",
+        ogTitle: seoData.ogTitle || "",
+        ogDescription: seoData.ogDescription || "",
+        ogImage: seoData.ogImage || "",
+        canonicalUrl: seoData.canonicalUrl || "",
+        schemaMarkup: seoData.schemaMarkup || "",
+        content: seoData.content || "",
+      });
+    } catch (err) {
+      console.error("Error fetching SEO page:", err);
+      setError("Failed to load SEO page.");
+      toast.error("Failed to load SEO data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle input changes
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     setError("");
-    setLoading(true);
 
     try {
-      const response = await fetch("/api/seo", {
-        method: "POST",
+      //  Validate JSON Schema
+      if (formData.schemaMarkup) {
+        try {
+          JSON.parse(formData.schemaMarkup);
+        } catch {
+          throw new Error("Invalid JSON format in Schema Markup field");
+        }
+      }
+
+      const response = await fetch(`/api/seo/${slug}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to update SEO page");
 
-      if (!response.ok) throw new Error(data.message || "Failed to create SEO page");
-
+      toast.success("SEO page updated successfully!");
       router.push("/admin/seo");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create SEO page");
+      console.error("Error updating SEO:", err);
+      setError(err instanceof Error ? err.message : "Failed to update SEO");
+      toast.error(err instanceof Error ? err.message : "Error updating SEO");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Loading SEO data...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600">
+        {error}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-color6">
@@ -62,64 +135,77 @@ export default function NewSeoPage() {
                   <MdArrowBack size={20} />
                 </Button>
               </Link>
-              <h1 className="text-xl font-bold text-color3">New SEO Page</h1>
+              <h1 className="text-xl font-bold text-color3">
+                Edit SEO Page: {slug}
+              </h1>
             </div>
             <Button
               type="submit"
-              form="seo-form"
-              isLoading={loading}
+              form="seo-edit-form"
+              isLoading={saving}
               className="flex items-center gap-2"
             >
               <MdSave size={20} />
-              Save
+              Save Changes
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Main */}
+      {/* Main Form */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
 
-        <form id="seo-form" onSubmit={handleSubmit} className="space-y-6">
+        <form id="seo-edit-form" onSubmit={handleSubmit} className="space-y-6">
           {/* Page Info */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-color3 mb-4">Page Information</h2>
             <div className="space-y-4">
               <Input
                 label="Page Slug"
+                name="slug"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="e.g., /about-us or /services/web-development"
+                onChange={handleChange}
                 required
+                placeholder="/about-us or /services/web-dev"
               />
               <Input
                 label="Meta Title"
+                name="metaTitle"
                 value={formData.metaTitle}
-                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
-                placeholder="Page title for search engines"
+                onChange={handleChange}
                 required
+                placeholder="Page title for search engines"
               />
               <div>
-                <label className="block text-sm font-medium text-color3 mb-2">Meta Description</label>
+                <label className="block text-sm font-medium text-color3 mb-2">
+                  Meta Description
+                </label>
                 <textarea
+                  name="metaDescription"
                   value={formData.metaDescription}
-                  onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                  onChange={handleChange}
                   placeholder="Brief description (150–160 characters)"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-color1"
                 />
               </div>
               <Input
                 label="Meta Keywords"
+                name="metaKeywords"
                 value={formData.metaKeywords}
-                onChange={(e) => setFormData({ ...formData, metaKeywords: e.target.value })}
+                onChange={handleChange}
                 placeholder="keyword1, keyword2, keyword3"
               />
               <Input
                 label="Canonical URL"
+                name="canonicalUrl"
                 value={formData.canonicalUrl}
-                onChange={(e) => setFormData({ ...formData, canonicalUrl: e.target.value })}
+                onChange={handleChange}
                 placeholder="https://example.com/page"
               />
             </div>
@@ -127,12 +213,15 @@ export default function NewSeoPage() {
 
           {/* Open Graph Section */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-color3 mb-4">Open Graph (Social Sharing)</h2>
+            <h2 className="text-lg font-bold text-color3 mb-4">
+              Open Graph (Social Sharing)
+            </h2>
             <div className="space-y-4">
               <Input
                 label="OG Title"
+                name="ogTitle"
                 value={formData.ogTitle}
-                onChange={(e) => setFormData({ ...formData, ogTitle: e.target.value })}
+                onChange={handleChange}
                 placeholder="Title for social sharing"
               />
               <div>
@@ -140,17 +229,20 @@ export default function NewSeoPage() {
                   OG Description
                 </label>
                 <textarea
+                  name="ogDescription"
                   value={formData.ogDescription}
-                  onChange={(e) => setFormData({ ...formData, ogDescription: e.target.value })}
+                  onChange={handleChange}
                   placeholder="Description for social sharing"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-color1"
                 />
               </div>
 
-              {/* UploadThing */}
+              {/*  UploadThing */}
               <div>
-                <label className="block text-sm font-medium text-color3 mb-2 ">OG Image</label>
+                <label className="block text-sm font-medium text-color3 mb-2">
+                  OG Image
+                </label>
                 {formData.ogImage ? (
                   <div className="relative w-full h-48 mb-4">
                     <img
@@ -189,10 +281,13 @@ export default function NewSeoPage() {
           <Card className="p-6">
             <h2 className="text-lg font-bold text-color3 mb-4">Schema Markup</h2>
             <div>
-              <label className="block text-sm font-medium text-color3 mb-2">JSON-LD Schema</label>
+              <label className="block text-sm font-medium text-color3 mb-2">
+                JSON-LD Schema
+              </label>
               <textarea
+                name="schemaMarkup"
                 value={formData.schemaMarkup}
-                onChange={(e) => setFormData({ ...formData, schemaMarkup: e.target.value })}
+                onChange={handleChange}
                 placeholder='{"@context": "https://schema.org", ...}'
                 rows={6}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1 font-mono text-sm"
@@ -208,8 +303,9 @@ export default function NewSeoPage() {
                 Content (HTML)
               </label>
               <textarea
+                name="content"
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={handleChange}
                 placeholder="Page content (HTML supported)"
                 rows={10}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"

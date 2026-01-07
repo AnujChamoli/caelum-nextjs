@@ -8,9 +8,9 @@ import { JsonLd } from "@/components/seo";
 import { getBreadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Blog | Caelum",
+  title: "Blog",
   description:
-    "Latest articles and insights about education investment, school management, and tips for educators. Stay updated with Caelum's expert content.",
+    "Latest articles and insights about education investment, school management, and tips for educators. Stay updated with expert content.",
   keywords: [
     "education blog",
     "school investment articles",
@@ -19,34 +19,37 @@ export const metadata: Metadata = {
     "school management tips",
   ],
   openGraph: {
-    title: "Blog | Caelum",
+    title: "Blog",
     description:
       "Latest articles and insights about education and school investment",
     type: "website",
   },
 };
 
-export const revalidate = 3600; // Revalidate every hour
+// Revalidate every hour
+export const revalidate = 3600;
 
+// ✅ Fetch only published blogs and use direct `image` field
 async function getBlogs() {
   const blogs = await prisma.blog.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: "desc" },
-    include: {
-      images: {
-        take: 1,
-        orderBy: { createdAt: "asc" },
-      },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      content: true,
+      image: true,
+      readTime: true,
+      metaDescription: true,
+      createdAt: true,
     },
   });
+
   return blogs.map((blog) => ({
     ...blog,
-    images: blog.images?.map((image) => ({
-      imageUrl: image.imageUrl,
-      altText: image.altText || "",
-    })) || [],
     readTime: blog.readTime || undefined,
-    metaDescription: blog.metaDescription || undefined,
+    metaDescription: blog.metaDescription || blog.content?.slice(0, 150),
   }));
 }
 
@@ -56,21 +59,22 @@ export default async function BlogsPage() {
   return (
     <>
       <MainNavbar />
-      <main className="min-h-screen bg-color6 pt-20">
-        {/* Hero Section */}
+
+      <main className="min-h-screen bg-color6">
+        {/* 🔹 Hero Section */}
         <section className="bg-gradient-to-r from-color3 to-color9 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white">
               Our Blog
             </h1>
-            <p className="text-xl text-white/80 text-center mt-4 max-w-2xl mx-auto">
+            <p className="text-xl text-white/80 mt-4 max-w-2xl mx-auto">
               Insights, guides, and stories about education and school
-              investment
+              investment.
             </p>
           </div>
         </section>
 
-        {/* Blog Grid */}
+        {/* 🔹 Blog Grid */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {blogs.length === 0 ? (
             <div className="text-center py-16">
@@ -85,10 +89,10 @@ export default async function BlogsPage() {
                 <Link key={blog.id} href={`/blog/${blog.slug}`}>
                   <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden group">
                     <div className="relative h-48 bg-gray-100">
-                      {blog.images[0] ? (
+                      {blog.image ? (
                         <Image
-                          src={blog.images[0].imageUrl}
-                          alt={blog.images[0].altText || blog.title}
+                          src={blog.image}
+                          alt={blog.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -98,6 +102,7 @@ export default async function BlogsPage() {
                         </div>
                       )}
                     </div>
+
                     <div className="p-6">
                       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                         <time dateTime={new Date(blog.createdAt).toISOString()}>
@@ -114,12 +119,15 @@ export default async function BlogsPage() {
                           </>
                         )}
                       </div>
+
                       <h2 className="text-xl font-bold text-color3 mb-2 line-clamp-2 group-hover:text-color9 transition-colors">
                         {blog.title}
                       </h2>
+
                       <p className="text-gray-600 line-clamp-3">
-                        {blog.metaDescription || blog.content?.slice(0, 150)}
+                        {blog.metaDescription}
                       </p>
+
                       <div className="mt-4 text-color9 font-medium">
                         Read more →
                       </div>
@@ -131,12 +139,14 @@ export default async function BlogsPage() {
           )}
         </section>
       </main>
+
       <JsonLd
         data={getBreadcrumbSchema([
           { name: "Home", url: "/" },
           { name: "Blog", url: "/blogs" },
         ])}
       />
+
       <MainFooter />
     </>
   );

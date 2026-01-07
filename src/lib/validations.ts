@@ -83,7 +83,11 @@ export const createFaqSchema = z.object({
   answer: z.string().min(10, "Answer must be at least 10 characters"),
 });
 
-export const updateFaqSchema = createFaqSchema.partial();
+export const updateFaqSchema = z.object({
+  question: z.string().min(1, "Question is required"),
+  answer: z.string().min(1, "Answer is required"),
+  blogId: z.string().uuid().optional().nullable(), 
+});
 
 // Utility function to validate and parse data
 export function validateData<T>(

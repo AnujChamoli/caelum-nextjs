@@ -133,3 +133,20 @@ export function getPaginationParams(url: URL): {
 
   return { page, limit, skip };
 }
+
+
+// badRequestResponse helper  
+
+export function badRequestResponse(message: string, data: any = null) {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      message,
+      data,
+    }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}

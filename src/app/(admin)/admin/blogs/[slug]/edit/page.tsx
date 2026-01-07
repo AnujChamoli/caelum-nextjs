@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Input, Card } from "@/components/ui";
 import { toast } from "react-toastify";
 import { MdArrowBack, MdSave } from "react-icons/md";
+import { Button, Input, Card } from "@/components/ui";
+import { UploadButton } from "@/utils/uploadthing";
 
 interface Blog {
   id: string;
@@ -35,21 +36,18 @@ export default function EditBlogPage() {
     isPublished: false,
   });
 
-  // 🔹 Fetch blog by slug
+  // 🔹 Fetch blog
   useEffect(() => {
-    if (!slug) return;
-    fetchBlog();
+    if (slug) fetchBlog();
   }, [slug]);
 
   const fetchBlog = async () => {
     try {
       const response = await fetch(`/api/blogs/${slug}`);
-      if (!response.ok) {
-        toast.error("Failed to load blog");
-        return;
-      }
+      if (!response.ok) throw new Error("Failed to fetch blog");
       const data = await response.json();
       const blogData = data.result || data.data || data.blog;
+
       if (!blogData) {
         toast.error("Blog not found");
         return;
@@ -64,33 +62,26 @@ export default function EditBlogPage() {
         image: blogData.image || "",
         isPublished: blogData.isPublished || false,
       });
-    } catch (error) {
-      console.error("Error fetching blog:", error);
-      toast.error("Error fetching blog");
+    } catch (err) {
+      toast.error("Error loading blog");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const target = e.target;
     if (target instanceof HTMLInputElement && target.type === "checkbox") {
-    setForm((prev) => ({
-      ...prev,
-      [target.name]: target.checked,
-        }));
+      setForm((prev) => ({ ...prev, [target.name]: target.checked }));
     } else {
-    setForm((prev) => ({
-      ...prev,
-      [target.name]: target.value,
-    }));
- }
-};
+      setForm((prev) => ({ ...prev, [target.name]: target.value }));
+    }
+  };
 
-
-  // 🔹 Submit updated blog
+  // 🔹 Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -102,16 +93,13 @@ export default function EditBlogPage() {
         body: JSON.stringify(form),
       });
 
-      if (!response.ok) {
-        toast.error("Failed to update blog");
-        return;
-      }
+      if (!response.ok) throw new Error("Failed to update blog");
 
       toast.success("Blog updated successfully!");
       router.push("/admin/blogs");
-    } catch (error) {
-      console.error("Error updating blog:", error);
-      toast.error("Error updating blog");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+      console.error(err);
     } finally {
       setSaving(false);
     }
@@ -135,7 +123,7 @@ export default function EditBlogPage() {
 
   return (
     <div className="min-h-screen bg-color6">
-      {/* Header */}
+      {/* 🔹 Header */}
       <header className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
@@ -151,10 +139,11 @@ export default function EditBlogPage() {
         </div>
       </header>
 
-      {/* Form */}
+      {/* 🔹 Main Content */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Card className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Title
@@ -168,6 +157,7 @@ export default function EditBlogPage() {
               />
             </div>
 
+            {/* Subtitle */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Subtitle
@@ -180,6 +170,7 @@ export default function EditBlogPage() {
               />
             </div>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
@@ -193,6 +184,7 @@ export default function EditBlogPage() {
               />
             </div>
 
+            {/* Content */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Content
@@ -208,18 +200,49 @@ export default function EditBlogPage() {
               />
             </div>
 
+            {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Image URL
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Blog Cover Image
               </label>
-              <Input
-                name="image"
-                value={form.image}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
-              />
+
+              {form.image ? (
+                <div className="relative w-full h-48 mb-4">
+                  <img
+                    src={form.image}
+                    alt="Blog Cover"
+                    className="w-full h-full object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="absolute top-2 right-2 bg-white/80"
+                    onClick={() => setForm({ ...form, image: "" })}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res[0]?.ufsUrl) {
+                      setForm((prev) => ({
+                        ...prev,
+                        image: res[0].ufsUrl,
+                      }));
+                      toast.success("Image uploaded!");
+                    }
+                  }}
+                  onUploadError={(error) => {
+                    console.error("Upload failed:", error);
+                    toast.error("Image upload failed. Please try again.");
+                  }}
+                />
+              )}
             </div>
 
+            {/* Publish Toggle */}
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -231,6 +254,7 @@ export default function EditBlogPage() {
               <span className="text-sm text-gray-700">Published</span>
             </div>
 
+            {/* Save Button */}
             <Button
               type="submit"
               className="flex items-center gap-2"

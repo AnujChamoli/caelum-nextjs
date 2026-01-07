@@ -23,24 +23,13 @@ export async function generateStaticParams() {
 async function getBlog(slug: string) {
   const blog = await prisma.blog.findUnique({
     where: { slug },
-    include: {
-      images: {
-        orderBy: { createdAt: "asc" },
-      },
-      faqs: true,
-    },
+    include: { faqs: true },
   });
 
   if (!blog) return null;
 
   return {
     ...blog,
-    images: blog.images.map((image) => ({
-      id: image.id,
-      imageUrl: image.imageUrl,
-      altText: image.altText || "",
-      isMain: image.isMain || false,
-    })),
     faqs: blog.faqs.map((faq) => ({
       id: faq.id,
       question: faq.question,
@@ -60,9 +49,7 @@ export async function generateMetadata({
   const blog = await getBlog(slug);
 
   if (!blog) {
-    return {
-      title: "Blog Not Found",
-    };
+    return { title: "Blog Not Found" };
   }
 
   return {
@@ -72,7 +59,7 @@ export async function generateMetadata({
     openGraph: {
       title: blog.metaTitle || blog.title,
       description: blog.metaDescription || blog.content?.slice(0, 160),
-      images: blog.images[0] ? [blog.images[0].imageUrl] : undefined,
+      images: blog.image ? [blog.image] : undefined,
     },
   };
 }
@@ -87,13 +74,11 @@ export default async function BlogPage({ params }: BlogPageProps) {
     notFound();
   }
 
-  const mainImage = blog.images.find((img) => img.isMain) || blog.images[0];
-
   return (
     <>
       <MainNavbar />
-      <main className="min-h-screen bg-white pt-20">
-        {/* Hero */}
+      <main className="min-h-screen bg-white">
+        {/* 🔹 Hero Section */}
         <section className="bg-gradient-to-r from-color3 to-color9 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2 text-white/80 text-sm mb-4">
@@ -106,7 +91,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
               <span>→</span>
               <span className="truncate">{blog.title}</span>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
               {blog.title}
             </h1>
             <div className="flex items-center gap-4 mt-6 text-white/80">
@@ -127,81 +112,66 @@ export default async function BlogPage({ params }: BlogPageProps) {
           </div>
         </section>
 
-        {/* Main Image */}
-        {mainImage && (
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
-            <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg">
+        {/* 🔹 Main Featured Image */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-100 aspect-[16/9] border border-gray-100">
+            {blog.image ? (
               <Image
-                src={mainImage.imageUrl}
-                alt={mainImage.altText || blog.title}
+                src={blog.image}
+                alt={blog.title}
                 fill
-                className="object-cover"
                 priority
+                className="object-cover object-center transition-transform duration-500 hover:scale-[1.02]"
               />
-            </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-6xl text-gray-300 bg-gray-50">
+                📚
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Content */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* 🔹 Blog Content */}
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div
-            className="prose prose-lg max-w-none prose-headings:text-color3 prose-a:text-color9 prose-img:rounded-lg"
+            className="prose prose-lg max-w-none prose-headings:text-color3 prose-a:text-color9 prose-img:rounded-lg prose-img:shadow-sm prose-figcaption:text-gray-500"
             dangerouslySetInnerHTML={{ __html: blog.content || "" }}
           />
 
-          {/* Additional Images */}
-          {blog.images.length > 1 && (
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold text-color3 mb-6">Gallery</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {blog.images
-                  .filter((img) => !img.isMain)
-                  .map((image) => (
-                    <div
-                      key={image.id}
-                      className="relative aspect-square rounded-lg overflow-hidden"
-                    >
-                      <Image
-                        src={image.imageUrl}
-                        alt={image.altText || blog.title}
-                        fill
-                        className="object-cover hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* FAQs */}
+          {/* 🔹 FAQs */}
           {blog.faqs.length > 0 && (
-            <div className="mt-12">
+            <div className="mt-16">
               <h2 className="text-2xl font-bold text-color3 mb-6">
                 Frequently Asked Questions
               </h2>
               <div className="space-y-4">
                 {blog.faqs.map((faq) => (
-                  <Card key={faq.id} className="p-6">
-                    <h3 className="font-bold text-lg text-color3 mb-2">
+                  <Card
+                    key={faq.id}
+                    className="p-6 border border-gray-200 hover:shadow-md transition-all"
+                  >
+                    <h3 className="font-semibold text-lg text-color3 mb-2">
                       {faq.question}
                     </h3>
-                    <p className="text-gray-600">{faq.answer}</p>
+                    <p className="text-gray-600 leading-relaxed">
+                      {faq.answer}
+                    </p>
                   </Card>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Structured Data for SEO */}
+          {/* 🔹 Structured Data for SEO */}
           <JsonLd
             data={getArticleSchema({
               title: blog.title,
               description:
                 blog.metaDescription || blog.content?.slice(0, 160) || "",
-              slug: slug,
+              slug,
               publishedAt: blog.createdAt,
               updatedAt: blog.updatedAt,
-              image: mainImage?.imageUrl,
+              image: blog?.image ?? undefined,
             })}
           />
           <JsonLd
@@ -214,8 +184,8 @@ export default async function BlogPage({ params }: BlogPageProps) {
           {blog.faqs.length > 0 && <JsonLd data={getFaqSchema(blog.faqs)} />}
         </article>
 
-        {/* Back to Blog */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        {/* 🔹 Back to Blog List */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           <Link
             href="/blogs"
             className="inline-flex items-center gap-2 text-color9 font-medium hover:underline"

@@ -15,7 +15,7 @@ import {
 interface DashboardStats {
   blogs: number;
   seoPages: number;
-  users: number;
+  users?: number;
   faqs: number;
 }
 
@@ -24,27 +24,36 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
   const fetchStats = async () => {
     try {
       const response = await fetch("/api/admin/stats");
-      if (!response.ok) {
-        console.error("Failed to fetch stats:", response.statusText);
+      const data = await response.json();
+
+      if (!response.ok || !data.result) {
+        console.error("Failed to fetch stats:", data.message);
         return;
       }
 
-      const data = await response.json();
-      const statsData = data.result || data.data;
-      setStats(statsData);
+      setStats(data.result);
     } catch (error) {
       console.error("Failed to fetch stats:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+
+    // Auto-refresh when returning to tab
+    const handleVisibilityChange = () => {
+      if (!document.hidden) fetchStats();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   const handleLogout = async () => {
     try {
