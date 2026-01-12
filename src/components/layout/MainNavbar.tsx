@@ -82,14 +82,14 @@ export function MainNavbar() {
           </Link>
           <Link
             href="/register"
-            className="block py-2"
+            className="block py-2 border-b-2 border-color3/40"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             SIGN UP
           </Link>
           <Link
             href="/blogs"
-            className="block py-2"
+            className="block py-2 border-b-2 border-color3/40"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             BLOGS

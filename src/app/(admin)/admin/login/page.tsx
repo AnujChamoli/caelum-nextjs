@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Input, Card } from "@/components/ui";
 import Image from "next/image";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const access = searchParams.get("access");
+  const callbackUrl = searchParams.get("callbackUrl");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +34,12 @@ export default function AdminLoginPage() {
         throw new Error(data.message || "Login failed");
       }
 
-      router.push("/admin/dashboard");
+      // Redirect to original protected path if provided, else to dashboard
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else {
+        router.push("/admin/dashboard");
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

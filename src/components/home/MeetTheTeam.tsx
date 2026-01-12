@@ -1,71 +1,91 @@
+"use client";
+
 const teamMembers = [
   {
-    name: "Member 1",
-    designation: "Designation",
-    image: "/assets/home/member1.jpg",
+    name: "Mahit Thadaney",
+    designation: "Founder, CEO",
+    image: "/assets/home/MrMahitThadaney.png",
   },
   {
-    name: "Member 2",
-    designation: "Designation",
-    image: "/assets/home/member2.jpg",
+    name: "Jayani Thadaney",
+    designation: "Director - Teacher Development and AI Pedagogy",
+    image: "/assets/home/Ms.Jayani.png",
   },
   {
-    name: "Member 3",
-    designation: "Designation",
-    image: "/assets/home/member3.jpg",
+    name: "Monica Thadaney",
+    designation: "Chief Learning Architect",
+    image: "/assets/home/MrsMonicaThadaney.png",
   },
   {
-    name: "Member 4",
-    designation: "Designation",
-    image: "/assets/home/member4.jpg",
+    name: "Harish Thadaney",
+    designation: "Chief Strategic Advisor",
+    image: "/assets/home/MrHarishThadaney.png",
   },
 ];
 
 const MeetTheTeam = () => {
   return (
-    <div>
-      <div className="pt-8 px-6 lg:px-0">
-        <h3 className="text-center text-3xl font-bold text-color3 mb-4">
+    <section className="bg-white py-6">
+      <div className="px-6 lg:px-0 max-w-7xl mx-auto">
+        {/* Heading */}
+        <h3 className="text-center text-4xl font-bold tracking-tight text-color3 mb-10">
           Meet the Team
         </h3>
-        <div className="container mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
           {teamMembers.map((member, index) => (
-            <div key={index} className="flex flex-col items-center">
-              {/* Image Container */}
-              <div
-                className="w-full h-52 lg:h-96 bg-gray-300 rounded-t-lg"
-                style={{
-                  backgroundImage: `url(${member.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
+            <div
+              key={index}
+              className="group flex flex-col rounded-2xl overflow-hidden bg-white 
+              shadow-[0_20px_50px_rgba(255,193,7,0.15),0_30px_80px_rgba(0,0,0,0.06)]
+              hover:shadow-[0_30px_90px_rgba(255,193,7,0.25),0_50px_120px_rgba(0,0,0,0.12)]
+              transition-all duration-500"
+            >
+              {/* Image */}
+              <div className="relative w-full h-56 lg:h-96 overflow-hidden">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${member.image})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-yellow-900/40 via-yellow-700/10 to-transparent" />
+              </div>
 
               {/* Name & Designation */}
-              <div className="w-full bg-white text-center shadow-lg border-b-4 border-l-4 border-r-4 rounded-b-lg border-color1 py-4">
-                <h4 className="text-lg font-bold text-color3">{member.name}</h4>
-                <p className="text-lg text-color3 -mt-1">
+              <div className="bg-white text-center px-4 py-6 relative">
+                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400" />
+                <h4 className="text-lg font-semibold text-color3 tracking-tight">
+                  {member.name}
+                </h4>
+                <p className="mt-1 text-sm text-gray-600 leading-snug">
                   {member.designation}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <p className="text-center text-color3 mt-8">
-          Caelum&apos;s leadership team is made up of visionaries who are
-          passionate about redefining education. With decades of combined
-          experience in education management, psychology, curriculum design, and
-          school operations, our team brings expertise, innovation, and a
-          relentless commitment to excellence.
-        </p>
-        <p className="text-center text-color3 mt-8">
-          Caelum people are visionaries, inventors, and changemakers guided by a
-          common mission: educational experiences that have a transformative
-          effect on the students&apos; lives and their community.
-        </p>
-        <div className="mt-12 border-b-2 border-color1"></div>
+
+        {/* Text */}
+        <div className="max-w-7xl mx-auto mt-16 text-center">
+          <p className="text-lg text-gray-700 leading-relaxed">
+            Caelum&apos;s leadership team is made up of visionaries who are
+            passionate about redefining education. With decades of combined
+            experience in education management, psychology, curriculum design,
+            and school operations, our team brings expertise, innovation, and a
+            relentless commitment to excellence.
+          </p>
+
+          <p className="mt-6 text-lg text-gray-700 leading-relaxed">
+            Caelum people are visionaries, inventors, and changemakers guided by a
+            common mission: educational experiences that have a transformative
+            effect on students&apos; lives and their communities.
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="mt-20 border-b-2 border-color1 opacity-80 shadow-[0_0_12px_rgba(255,193,7,0.35)]" />
       </div>
-    </div>
+    </section>
   );
 };
 

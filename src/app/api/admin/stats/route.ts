@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
       prisma.blog.count().catch(() => 0),
       prisma.seoPage.count().catch(() => 0),
       prisma.blogFaq.count().catch(() => 0), 
-      prisma.user.count().catch(() => 0),
+      prisma.lead.count().catch(() => 0),
     ]);
 
     //  Return data in standardized format
     return successResponse(
-      { blogs, seoPages, faqs: blogFaqs, users },
+      { blogs, seoPages, faqs: blogFaqs, leads : users },
       "Dashboard stats retrieved successfully"
     );
   } catch (error) {
