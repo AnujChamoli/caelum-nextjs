@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/components/ui";
@@ -19,8 +19,12 @@ interface Lead {
   createdAt: string;
 }
 
-export default function LeadPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function LeadPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
 
   const [lead, setLead] = useState<Lead | null>(null);
@@ -38,7 +42,8 @@ export default function LeadPage({ params }: { params: { id: string } }) {
       const res = await fetch(`/api/leads/${id}`);
       if (!res.ok) throw new Error("Failed to fetch lead");
       const data = await res.json();
-      const leadData: Lead = data.result?.lead || data.lead || data.result || data;
+      const leadData: Lead =
+        data.result?.lead || data.lead || data.result || data;
       setLead(leadData);
     } catch (err) {
       console.error("Error fetching lead:", err);
@@ -115,24 +120,40 @@ export default function LeadPage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-color3">{lead.name}</h2>
+                  <h2 className="text-2xl font-semibold text-color3">
+                    {lead.name}
+                  </h2>
                   <p className="text-sm text-gray-600">{lead.email}</p>
                   <p className="text-sm mt-1">
-                    <code className="text-sm bg-gray-100 px-2 py-1 rounded">{lead.phone}</code>
+                    <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                      {lead.phone}
+                    </code>
                   </p>
-                  <p className="text-sm text-gray-700 mt-2">{lead.city}, {lead.state}</p>
+                  <p className="text-sm text-gray-700 mt-2">
+                    {lead.city}, {lead.state}
+                  </p>
                 </div>
 
                 <div className="text-right">
-                  <p className={`px-2 py-1 rounded-full text-xs ${lead.verified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                  <p
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      lead.verified
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
                     {lead.verified ? "Verified" : "Pending"}
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">{new Date(lead.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {new Date(lead.createdAt).toLocaleString()}
+                  </p>
                 </div>
               </div>
 
               <div className="border-t pt-4">
-                <p className="text-sm text-gray-600"><strong>OTP:</strong> {lead.otp || "-"}</p>
+                <p className="text-sm text-gray-600">
+                  <strong>OTP:</strong> {lead.otp || "-"}
+                </p>
               </div>
 
               <div className="flex items-center gap-3 mt-4">
@@ -142,11 +163,21 @@ export default function LeadPage({ params }: { params: { id: string } }) {
                     {actionLoading ? "Processing..." : "Mark Verified"}
                   </Button>
                 )}
-                <Button variant="outline" className="text-red-600" onClick={handleDelete} disabled={actionLoading}>
+                <Button
+                  variant="outline"
+                  className="text-red-600"
+                  onClick={handleDelete}
+                  disabled={actionLoading}
+                >
                   <MdDelete className="mr-2" />
                   Delete
                 </Button>
-                <Button variant="ghost" onClick={() => router.push("/admin/leads")}>Back to list</Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => router.push("/admin/leads")}
+                >
+                  Back to list
+                </Button>
               </div>
             </div>
           )}
