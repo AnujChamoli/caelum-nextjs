@@ -1,2 +1,2 @@
 Caelum Nextjs v1.0
-Staging enviornment.
+Staging Enviornment.
