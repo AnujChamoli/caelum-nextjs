@@ -48,13 +48,13 @@ const MeetTheTeam = () => {
               border border-gray-100 hover:border-yellow-400/50"
             >
               {/* Image */}
-              <div className="relative w-full h-72 lg:h-[420px] overflow-hidden">
+              <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] overflow-hidden">
                 <Image
                   src={member.image}
                   alt={member.name}
                   fill
                   sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   priority={index < 2}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-500" />

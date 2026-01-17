@@ -44,12 +44,13 @@ export function MainNavbar() {
         </nav>
 
         <div className="lg:hidden">
-          <button onClick={toggleMobileMenu}>
+          <button onClick={toggleMobileMenu} aria-label="Toggle menu">
             <IoMenu className="w-12 h-12" />
           </button>
         </div>
       </div>
 
+      {isMobileMenuOpen && (
         <nav className="bg-color2 pt-3 absolute right-0 top-[78px] w-40 lg:hidden text-center text-color3 font-bold z-50">
           <Link
             href="/"
@@ -94,6 +95,7 @@ export function MainNavbar() {
             BLOGS
           </Link>
         </nav>
+      )}
     </header>
   );
 }
