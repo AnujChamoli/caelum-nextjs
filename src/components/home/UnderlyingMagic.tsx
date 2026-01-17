@@ -12,7 +12,7 @@ const UnderlyingMagic = () => {
   ];
 
   return (
-    <section className="w-full bg-white">
+    <section id="underlying-magic" className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 py-24">
 
         {/* GRID LAYOUT */}

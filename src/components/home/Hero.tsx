@@ -3,6 +3,13 @@
 import { motion } from "framer-motion";
 
 const Hero = () => {
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section id="hero" className="relative w-full h-[700px] overflow-hidden">
       {/* 🔹 Background Video */}
@@ -43,6 +50,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
+            onClick={() => scrollToSection("underlying-magic")}
             className="text-lg lg:text-xl font-semibold text-color3 bg-color1 py-2 px-6 rounded-lg w-fit
             hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-all duration-300"
           >
@@ -60,7 +68,9 @@ const Hero = () => {
         <p className="mt-4 text-lg text-white/90">
           Nurturing Young Minds. Building Lasting Success.
         </p>
-        <button className="mt-6 text-lg font-semibold bg-color1 text-color3 px-6 py-3 rounded-lg hover:scale-105 transition-all duration-300">
+        <button 
+          onClick={() => scrollToSection("underlying-magic")}
+          className="mt-6 text-lg font-semibold bg-color1 text-color3 px-6 py-3 rounded-lg hover:scale-105 transition-all duration-300">
           What Makes Us Different
         </button>
       </div>
