@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
   return (
-    <section className="relative w-full h-[700px] overflow-hidden">
+    <section id="hero" className="relative w-full h-[700px] overflow-hidden">
       {/* 🔹 Background Video */}
       <video
         autoPlay

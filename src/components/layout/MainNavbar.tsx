@@ -36,8 +36,8 @@ export function MainNavbar() {
 
         <nav className="hidden lg:flex space-x-6 font-bold text-color3 text-lg">
           <Link href="/">HOME</Link>
-          <Link href="#">OUR STORY</Link>
-          <Link href="#">COURSES</Link>
+          <Link href="/our-story">OUR STORY</Link>
+          <Link href="/courses">COURSES</Link>
           <Link href="/login">LOG IN</Link>
           <Link href="/register">SIGN UP</Link>
           <Link href="/blogs">BLOGS</Link>
@@ -50,7 +50,6 @@ export function MainNavbar() {
         </div>
       </div>
 
-      {isMobileMenuOpen && (
         <nav className="bg-color2 pt-3 absolute right-0 top-[78px] w-40 lg:hidden text-center text-color3 font-bold z-50">
           <Link
             href="/"
@@ -60,14 +59,14 @@ export function MainNavbar() {
             HOME
           </Link>
           <Link
-            href="#"
+            href="/our-story"
             className="block py-2 border-b-2 border-color3/40"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             OUR STORY
           </Link>
           <Link
-            href="#"
+            href="/courses"
             className="block py-2 border-b-2 border-color3/40"
             onClick={() => setIsMobileMenuOpen(false)}
           >
@@ -95,7 +94,6 @@ export function MainNavbar() {
             BLOGS
           </Link>
         </nav>
-      )}
     </header>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  CountrySelect,
   StateSelect,
   CitySelect,
 } from "react-country-state-city";
@@ -40,6 +39,17 @@ const Form = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value, type, checked } = e.target;
+    
+    // Only allow 10 digits for phone number
+    if (name === "phone") {
+      const phoneValue = value.replace(/\D/g, "").slice(0, 10);
+      setFormValues((prev) => ({
+        ...prev,
+        [name]: phoneValue,
+      }));
+      return;
+    }
+    
     setFormValues((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -85,15 +95,15 @@ const Form = () => {
   };
 
   return (
-    <div className="bg-color5 p-6 sm:p-8">
-      <div className="bg-color2 py-8 max-w-5xl mx-auto rounded-xl shadow-md">
-        <h2 className="text-center text-color3 text-2xl font-bold">
+    <div id="form-section" className="bg-color5 p-4 sm:p-6 lg:p-8">
+      <div className="bg-color2 py-6 sm:py-8 max-w-5xl mx-auto rounded-lg sm:rounded-xl shadow-md">
+        <h2 className="text-center text-color3 text-xl sm:text-2xl lg:text-3xl font-bold px-4">
           Franchise Opportunity
         </h2>
 
         {message && (
           <p
-            className={`text-center mt-4 font-semibold ${
+            className={`text-center mt-3 sm:mt-4 font-semibold text-sm sm:text-base ${
               verified ? "text-green-600" : "text-blue-600"
             }`}
           >
@@ -104,7 +114,7 @@ const Form = () => {
         {!verified && (
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-6 py-8"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 py-6 sm:py-8"
           >
             {/* Name */}
             <input
@@ -113,7 +123,7 @@ const Form = () => {
               value={formValues.name}
               onChange={handleInputChange}
               placeholder="Full Name*"
-              className="py-3 px-4 border rounded-lg text-base sm:text-lg"
+              className="w-full py-3 px-4 border rounded-lg text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-color1"
               required
             />
 
@@ -124,33 +134,26 @@ const Form = () => {
               value={formValues.email}
               onChange={handleInputChange}
               placeholder="Email ID*"
-              className="py-3 px-4 border rounded-lg text-base sm:text-lg"
+              className="w-full py-3 px-4 border rounded-lg text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-color1"
               required
             />
 
             {/* Phone with country code */}
-            <div className="flex gap-3">
-              <CountrySelect
-                value={countryId}
-                onChange={(e: any) => {
-                  setCountryId(e.id);
-                  setFormValues((prev) => ({
-                    ...prev,
-                    country: e.name,
-                  }));
-                }}
-                placeHolder="Code"
-                containerClassName="w-32"
-                inputClassName="py-3 px-3 border rounded-lg text-base"
-              />
+            <div className="flex gap-2 lg:col-span-1">
+              <div className="flex items-center px-3 sm:px-4 py-3 border rounded-lg bg-gray-50 text-sm sm:text-base font-semibold text-gray-700 whitespace-nowrap">
+                +91
+              </div>
 
               <input
                 type="tel"
                 name="phone"
                 value={formValues.phone}
                 onChange={handleInputChange}
-                placeholder="Mobile Number*"
-                className="flex-1 py-3 px-4 border rounded-lg text-base sm:text-lg"
+                placeholder="10 Digit Number*"
+                maxLength={10}
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                className="flex-1 py-3 px-4 border rounded-lg text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-color1"
                 required
               />
             </div>
@@ -169,7 +172,7 @@ const Form = () => {
               }}
               placeHolder="Select State*"
               containerClassName="w-full"
-              inputClassName="py-3 px-4 border rounded-lg text-base sm:text-lg"
+              inputClassName="py-3 px-4 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-color1"
             />
 
             {/* City */}
@@ -186,30 +189,30 @@ const Form = () => {
               placeHolder="Select City*"
               disabled={!stateId}
               containerClassName="w-full"
-              inputClassName="py-3 px-4 border rounded-lg text-base sm:text-lg"
+              inputClassName="py-3 px-4 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-color1 disabled:opacity-50"
             />
 
             {/* Terms */}
-            <div className="flex items-center gap-3 lg:col-span-2">
+            <div className="flex items-start sm:items-center gap-3 lg:col-span-2">
               <input
                 type="checkbox"
                 name="termsAccepted"
                 checked={formValues.termsAccepted}
                 onChange={handleInputChange}
-                className="w-5 h-5"
+                className="w-5 h-5 mt-1 sm:mt-0 cursor-pointer flex-shrink-0"
                 required
               />
-              <span className="text-sm sm:text-base">
+              <label className="text-xs sm:text-sm text-gray-700 cursor-pointer select-none">
                 Accept terms & conditions
-              </span>
+              </label>
             </div>
 
             {/* Submit */}
-            <div className="lg:col-span-2 flex justify-center">
+            <div className="col-span-1 lg:col-span-2 flex justify-center">
               <button
                 type="submit"
                 disabled={loading}
-                className={`px-10 py-3 rounded-lg text-lg font-semibold transition ${
+                className={`w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition active:scale-95 ${
                   loading
                     ? "opacity-70 cursor-not-allowed"
                     : "bg-color1 text-color3 hover:bg-color9"
@@ -222,14 +225,14 @@ const Form = () => {
         )}
 
         {verified && (
-          <div className="flex flex-col items-center mt-8">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-3xl mb-4">
+          <div className="flex flex-col items-center mt-6 sm:mt-8 px-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl sm:text-3xl mb-3 sm:mb-4">
               ✓
             </div>
-            <h3 className="text-xl font-bold text-green-700">
+            <h3 className="text-lg sm:text-xl font-bold text-green-700 text-center">
               Request Submitted Successfully!
             </h3>
-            <p className="text-gray-600 mt-2 text-center px-4">
+            <p className="text-gray-600 mt-2 text-center text-sm sm:text-base px-2">
               Thank you for your interest. Our team will contact you soon.
             </p>
           </div>

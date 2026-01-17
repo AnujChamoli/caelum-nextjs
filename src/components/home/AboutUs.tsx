@@ -13,7 +13,7 @@ const AboutUs = () => {
   ];
   return (
     <div>
-      <section className="pt-8 px-6 lg:px-0">
+      <section id="about-us" className="pt-8 px-6 lg:px-0">
         <div className="container mx-auto flex flex-col lg:flex-row items-center">
           <div className="w-full lg:w-1/2">
             <Image

@@ -3,9 +3,8 @@ import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const footerLinks = {
   company: [
-    { label: "About Us", href: "/about" },
-    { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "/contact" },
+    { label: "About Us", href: "#about-us" },
+    { label: "Contact", href: "#form-section" },
     { label: "Blog", href: "/blogs" },
   ],
   // resources: [
@@ -15,10 +14,10 @@ const footerLinks = {
   //   { label: "Terms of Service", href: "/terms" },
   // ],
   social: [
-    { label: "Facebook", href: "#", icon: FaFacebook },
+    { label: "Facebook", href: "#hero", icon: FaFacebook },
     // { label: "Twitter", href: "#", icon: FaTwitter },
-    { label: "Instagram", href: "#", icon: FaInstagram },
-    { label: "LinkedIn", href: "#", icon: FaLinkedin },
+    { label: "Instagram", href: "#hero", icon: FaInstagram },
+    { label: "LinkedIn", href: "#hero", icon: FaLinkedin },
   ],
 };
 
@@ -38,7 +37,7 @@ export function MainFooter() {
             </p>
             <div className="flex gap-4">
               {footerLinks.social.map((social) => (
-                <a
+                <Link
                   key={social.label}
                   href={social.href}
                   target="_blank"
@@ -47,7 +46,7 @@ export function MainFooter() {
                   aria-label={social.label}
                 >
                   <social.icon size={24} />
-                </a>
+                </Link>
               ))}
             </div>
           </div>
