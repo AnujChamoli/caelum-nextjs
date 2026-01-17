@@ -59,14 +59,14 @@ const Opportunity = () => {
                   }`}
                 >
                   {/* Front of the card */}
-                  <div className="card-front w-full h-full rounded-xl flex items-center justify-center overflow-hidden">
+                  <div className="card-front w-full h-full rounded-xl flex items-center justify-center overflow-hidden relative">
                     <Image
                       src={item.image}
                       alt={item.title}
                       fill
-                      className="object-cover rounded-xl"
+                      className="object-cover w-full h-full"
                     />
-                    <div className="absolute bottom-0 bg-color1 text-color3 text-center py-2 w-full font-bold text-sm lg:text-lg rounded-b-xl">
+                    <div className="absolute bottom-0 bg-color1 text-color3 text-center py-2 w-full font-bold text-sm lg:text-lg">
                       {item.title}
                     </div>
                   </div>

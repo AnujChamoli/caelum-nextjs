@@ -61,7 +61,7 @@ const Awards = () => {
 
   return (
     <div>
-      <div className="pt-6 px-6 lg:px-0">
+      <div className="pt-4 px-6 lg:px-0">
         <h3 className="text-center text-[29px] lg:text-3xl font-bold text-color3 mb-6 lg:mb-4">
           Awards & Recognition
         </h3>
@@ -80,7 +80,7 @@ const Awards = () => {
           <div className="flex justify-center px-4 lg:px-20 gap-8 overflow-hidden">
             <AnimatePresence initial={false} custom={direction}>
               {awardsList
-                .slice(currentIndex, currentIndex + (isMobile ? 1 : 2))
+                .slice(currentIndex, currentIndex + (isMobile ? 1 : 1))
                 .map((_, index) => (
                   <motion.div
                     key={index}
@@ -103,7 +103,7 @@ const Awards = () => {
           </div>
 
           <div className="flex items-center justify-center mt-6">
-            <button onClick={handlePrev} className="text-color10 text-2xl mr-4">
+            {/* <button onClick={handlePrev} className="text-color10 text-2xl mr-4">
               <FaArrowLeft />
             </button>
 
@@ -126,10 +126,9 @@ const Awards = () => {
 
             <button onClick={handleNext} className="text-color10 text-2xl ml-4">
               <FaArrowRight />
-            </button>
+            </button> */}
           </div>
         </div>
-
         <div className="mt-12 border-b-2 border-color1"></div>
       </div>
     </div>

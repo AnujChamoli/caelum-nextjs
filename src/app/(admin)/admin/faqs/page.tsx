@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Card, Button, Input } from "@/components/ui";
-import { MdAdd, MdEdit, MdDelete, MdArrowBack, MdSearch } from "react-icons/md";
+import { Card, Button, DataTable } from "@/components/ui";
+import { MdAdd, MdEdit, MdDelete, MdArrowBack } from "react-icons/md";
+import { ColumnDef } from "@tanstack/react-table";
 
 interface FAQ {
   id: number;
@@ -19,7 +20,6 @@ interface FAQ {
 export default function AdminFaqsPage() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchFaqs();
@@ -59,15 +59,72 @@ export default function AdminFaqsPage() {
     }
   };
 
-  const filteredFaqs = faqs.filter((faq) =>
-    faq.question.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // 🔹 Define table columns
+  const columns: ColumnDef<FAQ>[] = [
+    {
+      accessorKey: "question",
+      header: "Question",
+      cell: ({ row }) => (
+        <p className="font-medium text-color3 line-clamp-2 text-sm">
+          {row.getValue("question")}
+        </p>
+      ),
+    },
+    {
+      accessorKey: "blogId",
+      header: "Linked Blog",
+      cell: ({ row }) => {
+        const faq = row.original;
+        return (
+          <span className="text-sm">
+            {faq.blogId ? (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs inline-block">
+                {faq.blog?.title || `#${faq.blogId}`}
+              </span>
+            ) : (
+              <span className="text-gray-400">-</span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created",
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {new Date(row.getValue("createdAt")).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-2">
+          <Link href={`/admin/faqs/${row.original.id}/edit`}>
+            <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50 p-1">
+              <MdEdit size={16} />
+            </Button>
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDelete(row.original.id)}
+            className="text-red-600 hover:bg-red-50 p-1"
+          >
+            <MdDelete size={16} />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-color6">
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <Link href="/admin/dashboard">
@@ -87,28 +144,10 @@ export default function AdminFaqsPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <MdSearch
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search FAQs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-color1"
-            />
-          </div>
-        </div>
-
-        {/* FAQs List */}
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="p-8 text-center text-gray-500">Loading...</div>
-        ) : filteredFaqs.length === 0 ? (
+        ) : faqs.length === 0 ? (
           <Card className="p-8 text-center">
             <p className="text-gray-500 mb-4">No FAQs found</p>
             <Link href="/admin/faqs/new">
@@ -116,48 +155,14 @@ export default function AdminFaqsPage() {
             </Link>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {filteredFaqs.map((faq) => (
-              <Card key={faq.id} className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-color3 mb-2">
-                      {faq.question}
-                    </h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {faq.answer}
-                    </p>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                      <span>
-                        Created: {new Date(faq.createdAt).toLocaleDateString()}
-                      </span>
-                      {faq.blogId && (
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                          Linked to Blog:{" "}
-                          {faq.blog?.title || `#${faq.blogId}`}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/admin/faqs/${faq.id}/edit`}>
-                      <Button variant="ghost" size="sm">
-                        <MdEdit size={18} />
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(faq.id)}
-                      className="text-red-600 hover:bg-red-50"
-                    >
-                      <MdDelete size={18} />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <Card className="p-6">
+            <DataTable
+              columns={columns}
+              data={faqs}
+              searchKey="question"
+              searchPlaceholder="Search FAQs by question..."
+            />
+          </Card>
         )}
       </main>
     </div>

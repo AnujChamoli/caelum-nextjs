@@ -150,12 +150,6 @@ export default function LeadPage({
                 </div>
               </div>
 
-              <div className="border-t pt-4">
-                <p className="text-sm text-gray-600">
-                  <strong>OTP:</strong> {lead.otp || "-"}
-                </p>
-              </div>
-
               <div className="flex items-center gap-3 mt-4">
                 {!lead.verified && (
                   <Button onClick={handleVerify} disabled={actionLoading}>

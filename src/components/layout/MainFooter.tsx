@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const footerLinks = {
   company: [
@@ -8,15 +8,15 @@ const footerLinks = {
     { label: "Contact", href: "/contact" },
     { label: "Blog", href: "/blogs" },
   ],
-  resources: [
-    { label: "Documentation", href: "/docs" },
-    { label: "Help Center", href: "/help" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-  ],
+  // resources: [
+  //   { label: "Documentation", href: "/docs" },
+  //   { label: "Help Center", href: "/help" },
+  //   { label: "Privacy Policy", href: "/privacy" },
+  //   { label: "Terms of Service", href: "/terms" },
+  // ],
   social: [
     { label: "Facebook", href: "#", icon: FaFacebook },
-    { label: "Twitter", href: "#", icon: FaTwitter },
+    // { label: "Twitter", href: "#", icon: FaTwitter },
     { label: "Instagram", href: "#", icon: FaInstagram },
     { label: "LinkedIn", href: "#", icon: FaLinkedin },
   ],
@@ -26,9 +26,10 @@ export function MainFooter() {
   return (
     <footer className="bg-color3 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Changed order: Company section moved to the right */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 md:col-span-2 order-1 md:order-1">
             <h3 className="text-2xl font-bold text-color1 mb-4">Caelum</h3>
             <p className="text-gray-300 mb-4 max-w-md">
               Transform your school investment journey with AI-powered tools and
@@ -51,8 +52,11 @@ export function MainFooter() {
             </div>
           </div>
 
-          {/* Company Links */}
-          <div>
+          {/* Empty placeholder (kept same grid balance if needed) */}
+          <div className="order-2 md:order-2"></div>
+
+          {/* Company Links (moved to right) */}
+          <div className="order-3 md:order-3">
             <h4 className="font-semibold text-lg mb-4">Company</h4>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
@@ -68,10 +72,10 @@ export function MainFooter() {
             </ul>
           </div>
 
-          {/* Resources Links */}
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Resources</h4>
-            <ul className="space-y-2">
+          {/* Resources Links (still commented) */}
+          <div className="order-4 md:order-4">
+            {/* <h4 className="font-semibold text-lg mb-4">Resources</h4> */}
+            {/* <ul className="space-y-2">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -82,7 +86,7 @@ export function MainFooter() {
                   </Link>
                 </li>
               ))}
-            </ul>
+            </ul> */}
           </div>
         </div>
 

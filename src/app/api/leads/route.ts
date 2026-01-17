@@ -46,6 +46,8 @@ export async function GET(req: Request) {
       prisma.lead.count({ where }),
     ]);
 
+    console.log(`[API] Fetching leads - Found ${total} total, returning ${leads.length} for page ${page}`);
+
     return NextResponse.json({
       success: true,
       result: {
@@ -72,44 +74,63 @@ export async function GET(req: Request) {
 ===================================================== */
 export async function POST(req: Request) {
   try {
-    const test = await req.json();
-    const { name, email, phone, state, city, otp } = test;
+    const body = await req.json();
+    const { name, email, phone, state, city, otp } = body;
 
-    console.log("Received OTP verification request:", test);
+    console.log("Received lead submission:", body);
 
-    if (!phone || !otp) {
+    if (!phone || !name || !email) {
       return NextResponse.json(
-        { success: false, message: "Phone and OTP are required." },
+        { success: false, message: "Phone, name, and email are required." },
         { status: 400 }
       );
     }
 
-    const lead = await prisma.lead.findUnique({
+    // Check if lead already exists with this phone
+    const existingLead = await prisma.lead.findUnique({
       where: { phone: String(phone) },
     });
 
-    if (!lead) {
-      await prisma.lead.create({
+    let lead;
+
+    if (existingLead) {
+      // Update existing lead
+      lead = await prisma.lead.update({
+        where: { phone: String(phone) },
+        data: {
+          name,
+          email,
+          state,
+          city,
+          otp: otp || existingLead.otp,
+        },
+      });
+      console.log("Updated existing lead:", lead.id);
+    } else {
+      // Create new lead
+      lead = await prisma.lead.create({
         data: {
           name,
           email,
           phone: String(phone),
           state,
           city,
-          otp,
+          otp: otp || null,
           verified: false,
         },
       });
+      console.log("Created new lead:", lead.id);
     }
 
     return NextResponse.json({
       success: true,
-      message: "Lead created successfully and saved in database.",
+      message: "Lead saved successfully!",
+      data: lead,
     });
   } catch (error) {
-    console.error("Error verifying OTP:", error);
+    console.error("Error creating/updating lead:", error);
     return NextResponse.json(
-      { success: false, message: "Server error while verifying OTP." },
+      { success: false, message: "Server error while saving lead." },
       { status: 500 }
     );
   }

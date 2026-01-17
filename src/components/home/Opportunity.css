@@ -17,11 +17,14 @@
 /* Front of the card */
 .card-front {
   backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
 .card-front img {
-  transform: scale(1.2);
   object-fit: cover;
+  border-radius: 12px;
 }
 
 /* Back of the card (white background with yellow border) */
