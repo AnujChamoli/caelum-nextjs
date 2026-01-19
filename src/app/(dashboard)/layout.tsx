@@ -2,7 +2,7 @@
 
 import { Navbar, Sidebar } from "@/components/layout";
 import { useAuth } from "@/hooks/useAuth";
-
+import { Analytics } from "@vercel/analytics/next";
 export default function DashboardLayout({
   children,
 }: {
