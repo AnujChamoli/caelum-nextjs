@@ -14,10 +14,10 @@ const footerLinks = {
   //   { label: "Terms of Service", href: "/terms" },
   // ],
   social: [
-    { label: "Facebook", href: "#hero", icon: FaFacebook },
+    { label: "Facebook", href: " https://www.facebook.com/profile.php?id=61584109354670", icon: FaFacebook },
     // { label: "Twitter", href: "#", icon: FaTwitter },
-    { label: "Instagram", href: "#hero", icon: FaInstagram },
-    { label: "LinkedIn", href: "#hero", icon: FaLinkedin },
+    { label: "Instagram", href:"https://www.instagram.com/thecaelumway/", icon: FaInstagram },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/thadaneym/", icon: FaLinkedin },
   ],
 };
 

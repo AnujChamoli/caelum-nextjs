@@ -16,13 +16,15 @@ const AboutUs = () => {
       <section id="about-us" className="pt-8 px-6 lg:px-0">
         <div className="container mx-auto flex flex-col lg:flex-row items-center">
           <div className="w-full lg:w-1/2">
-            <Image
-              className="bg-color6 h-64 md:h-[450px] lg:h-[540px] w-full object-cover"
-              src="/assets/home/About Us.jpg"
-              alt="About Us"
-              width={600}
-              height={540}
-            />
+            <div className="relative h-64 md:h-[400px] lg:h-[540px] w-full">
+              <Image
+                src="/assets/home/About Us.jpg"
+                alt="About Us"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-contain bg-white"
+              />
+            </div>
           </div>
 
           <div className="w-full text-center lg:text-left lg:w-1/2 mt-6 lg:mt-0 lg:ml-12">
