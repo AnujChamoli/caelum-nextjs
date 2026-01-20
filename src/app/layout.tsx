@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
