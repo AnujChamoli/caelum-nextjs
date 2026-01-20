@@ -20,6 +20,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen">
+      <Analytics />
       <Sidebar />
       <div className="flex flex-col flex-grow h-full overflow-hidden">
         <Navbar />

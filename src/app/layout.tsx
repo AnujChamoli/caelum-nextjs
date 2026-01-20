@@ -75,6 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <body className="font-montserrat antialiased">
+        <Analytics />
         <Providers>
           {children}
           <ToastContainer
